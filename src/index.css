@@ -5,12 +5,7 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
-    @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
