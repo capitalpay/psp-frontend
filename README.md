@@ -1,83 +1,73 @@
-# PSP Frontend
+# React + TypeScript + Vite
 
-Frontend application for the Capitak PayPSP platform - a modern payment service provider platform for the African market.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Tech Stack
+Currently, two official plugins are available:
 
-- **Framework**: React with Vite
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Routing**: React Router
-- **Form Handling**: React Hook Form + Zod
-- **API Client**: Axios
-- **Testing**: Vitest + React Testing Library
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Prerequisites
+## React Compiler
 
-- Node.js 18+ and npm
-- Docker and Docker Compose (for containerized development)
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Getting Started
+## Expanding the ESLint configuration
 
-### Local Development
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```bash
-# Install dependencies
-npm install
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-# Start development server
-npm run dev
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-# Open http://localhost:5173
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-### Docker Development
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```bash
-# Build and run with Docker Compose
-docker-compose up
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-# Open http://localhost:3000
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-## Environment Variables
-
-Copy `.env.sample` to `.env` and configure:
-
-```
-VITE_API_BASE_URL=http://localhost:8000/api
-VITE_AUTH_API_URL=http://localhost:8001/api
-```
-
-## Project Structure
-
-```
-src/
-├── assets/          # Static assets (images, fonts)
-├── components/      # Reusable UI components
-├── hooks/          # Custom React hooks
-├── pages/          # Page components
-├── services/       # API services
-├── store/          # State management
-├── types/          # TypeScript types
-├── utils/          # Utility functions
-└── App.tsx         # App entry point
-```
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-- `npm test` - Run tests
-
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and development process.
-
-## License
-
-MIT License - see LICENSE file for details
