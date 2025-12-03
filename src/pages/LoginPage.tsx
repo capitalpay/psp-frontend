@@ -3,8 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
-import Card from '@/components/Card'
+import { FiEye, FiEyeOff, FiCheckCircle } from 'react-icons/fi'
 import Input from '@/components/Input'
 import Button from '@/components/Button'
 import TwoFactorInput from '@/components/TwoFactorInput'
@@ -27,12 +26,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [requires2FA, setRequires2FA] = useState(false)
   const [useBackupCode, setUseBackupCode] = useState(false)
-  const [sessionToken, setSessionToken] = useState('')
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   })
@@ -45,21 +44,28 @@ export default function LoginPage() {
       const response = await apiClient.post('/auth/login', data)
       const responseData = response.data
 
-      if (responseData.requires2FA) {
-        setRequires2FA(true)
-        setSessionToken(responseData.sessionToken)
-        toast('Enter your 2FA code')
-      } else {
-        login(responseData.user, responseData.access_token, responseData.refresh_token)
-        toast.success('Login successful!')
-        navigate('/dashboard')
-      }
+      login(responseData.user, responseData.access, responseData.refresh)
+      toast.success('Login successful!')
+      navigate('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const error = err as { response?: { data?: { message?: string } } }
-        const errorMessage = error.response?.data?.message || 'Login failed'
-        setError(errorMessage)
-        toast.error(errorMessage)
+        const error = err as {
+          response?: { data?: { mfa_code?: string; non_field_errors?: string; message?: string } }
+        }
+        const errorData = error.response?.data
+
+        // Check if MFA code is required
+        if (
+          errorData?.mfa_code === 'MFA code required' ||
+          errorData?.message === 'MFA code required'
+        ) {
+          setRequires2FA(true)
+          toast('Enter your 2FA code')
+        } else {
+          const errorMessage = errorData?.non_field_errors || errorData?.message || 'Login failed'
+          setError(errorMessage)
+          toast.error(errorMessage)
+        }
       } else {
         setError('Login failed. Please try again.')
         toast.error('Login failed. Please try again.')
@@ -74,20 +80,28 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await apiClient.post('/auth/verify-2fa', {
-        sessionToken,
-        code,
-        useBackupCode,
+      // Resubmit login with MFA code
+      const formData = watch()
+      const response = await apiClient.post('/auth/login', {
+        ...formData,
+        mfa_code: code,
       })
 
-      const { user, access_token, refresh_token } = response.data
-      login(user, access_token, refresh_token)
+      const responseData = response.data
+      login(responseData.user, responseData.access, responseData.refresh)
       toast.success('Login successful!')
       navigate('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const error = err as { response?: { data?: { message?: string } } }
-        const errorMessage = error.response?.data?.message || '2FA verification failed'
+        const error = err as {
+          response?: { data?: { message?: string; mfa_code?: string; non_field_errors?: string } }
+        }
+        const errorData = error.response?.data
+        const errorMessage =
+          errorData?.mfa_code ||
+          errorData?.non_field_errors ||
+          errorData?.message ||
+          '2FA verification failed'
         setError(errorMessage)
         toast.error(errorMessage)
       } else {
@@ -99,12 +113,51 @@ export default function LoginPage() {
     }
   }
 
+  const renderBrandingPanel = () => (
+    <div className="relative hidden w-0 flex-1 lg:block">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-secondary-600">
+        {/* Background Pattern/Watermark */}
+        <div className="absolute -right-20 -top-20 opacity-10">
+          <svg width="400" height="400" viewBox="0 0 100 100" fill="white">
+            <rect x="20" y="20" width="60" height="60" rx="15" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="relative flex h-full items-center justify-center px-12">
+        <div className="relative max-w-lg rounded-2xl bg-white/5 p-12 backdrop-blur-lg">
+          {/* Logo Icon */}
+          <div className="mb-8 h-12 w-12 rounded-xl bg-white/20 p-2 backdrop-blur-sm">
+            <div className="h-full w-full rounded-lg bg-white" />
+          </div>
+
+          <h3 className="text-3xl font-bold leading-tight text-white">
+            Welcome back to Capital Pay
+          </h3>
+
+          <div className="mt-12 space-y-8">
+            {benefits.map((benefit) => (
+              <div key={benefit} className="flex items-start gap-4">
+                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-400/20">
+                  <FiCheckCircle className="h-4 w-4 text-green-300" />
+                </div>
+                <span className="text-lg font-medium text-white/90">{benefit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   if (requires2FA) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 px-4">
-        <div className="w-full max-w-md">
-          <Card className="p-8">
+      <div className="flex min-h-screen">
+        {/* Left Side - 2FA Form */}
+        <div className="flex w-full items-center justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-20 xl:px-24">
+          <div className="w-full max-w-sm">
             <div className="text-center">
+              <div className="mx-auto mb-6 h-12 w-12 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
               <h2 className="text-2xl font-bold text-gray-900">Two-Factor Authentication</h2>
               <p className="mt-2 text-gray-600">
                 {useBackupCode
@@ -160,31 +213,33 @@ export default function LoginPage() {
                 ← Back to login
               </button>
             </div>
-          </Card>
+          </div>
         </div>
+        {renderBrandingPanel()}
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
-            <span className="text-3xl font-bold text-gray-900">Capitak PayPSP</span>
-          </Link>
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              Sign up
+    <div className="flex min-h-screen">
+      {/* Left Side - Login Form */}
+      <div className="flex w-full items-center justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-20 xl:px-24">
+        <div className="w-full max-w-sm">
+          <div>
+            <Link to="/" className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
+              <span className="text-2xl font-bold">Capital Pay PSP</span>
             </Link>
-          </p>
-        </div>
+            <h2 className="mt-8 text-3xl font-bold text-gray-900">Sign in to your account</h2>
+            <p className="mt-2 text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                Sign up
+              </Link>
+            </p>
+          </div>
 
-        <Card>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
             {error && (
               <div className="rounded-lg bg-red-50 p-4">
                 <p className="text-sm text-red-800">{error}</p>
@@ -235,8 +290,16 @@ export default function LoginPage() {
               Sign In
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
+      {renderBrandingPanel()}
     </div>
   )
 }
+
+const benefits = [
+  'Secure enterprise payments',
+  'Real-time analytics dashboard',
+  'Multi-currency support',
+  '24/7 dedicated support',
+]

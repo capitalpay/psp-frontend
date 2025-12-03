@@ -28,13 +28,8 @@ export default function UserMenu() {
   }
 
   const getInitials = () => {
-    if (!user?.name) return 'U'
-    return user.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
+    if (!user?.email) return 'U'
+    return user.email.substring(0, 2).toUpperCase()
   }
 
   return (
@@ -47,7 +42,7 @@ export default function UserMenu() {
           {getInitials()}
         </div>
         <div className="hidden text-left sm:block">
-          <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
+          <p className="text-sm font-medium text-gray-900">{user?.email || 'User'}</p>
           <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
         </div>
         <FiChevronDown
@@ -58,7 +53,7 @@ export default function UserMenu() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg">
           <div className="border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
+            <p className="text-sm font-medium text-gray-900">{user?.email || 'User'}</p>
             <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
           </div>
           <div className="py-1">

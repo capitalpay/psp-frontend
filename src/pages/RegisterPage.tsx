@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -13,7 +13,6 @@ import toast from 'react-hot-toast'
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
@@ -26,7 +25,6 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -46,20 +44,44 @@ export default function RegisterPage() {
 
     try {
       await apiClient.post('/auth/register', {
-        name: data.name,
         email: data.email,
         password: data.password,
+        password_confirm: data.confirmPassword,
       })
 
       setIsSuccess(true)
       toast.success('Account created successfully! Check your email to verify.')
-      setTimeout(() => {
-        navigate('/verify-email')
-      }, 2000)
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const error = err as { response?: { data?: { message?: string } } }
-        toast.error(error.response?.data?.message || 'Registration failed')
+        const error = err as {
+          response?: {
+            data?: {
+              message?: string
+              non_field_errors?: string[]
+              email?: string[]
+              password?: string[]
+              password_confirm?: string[]
+            }
+          }
+        }
+        const errorData = error.response?.data
+
+        // Extract error message with priority: specific field errors, then non_field_errors, then generic message
+        let errorMessage = 'Registration failed'
+
+        if (errorData?.non_field_errors && errorData.non_field_errors.length > 0) {
+          errorMessage = errorData.non_field_errors[0]
+        } else if (errorData?.email && errorData.email.length > 0) {
+          errorMessage = errorData.email[0]
+        } else if (errorData?.password && errorData.password.length > 0) {
+          errorMessage = errorData.password[0]
+        } else if (errorData?.password_confirm && errorData.password_confirm.length > 0) {
+          errorMessage = errorData.password_confirm[0]
+        } else if (errorData?.message) {
+          errorMessage = errorData.message
+        }
+
+        toast.error(errorMessage)
       } else {
         toast.error('Registration failed. Please try again.')
       }
@@ -71,12 +93,52 @@ export default function RegisterPage() {
   if (isSuccess) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 px-4">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-            <FiCheckCircle className="h-12 w-12 text-green-600" />
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg"
+        >
+          <div className="text-center">
+            {/* Email Icon */}
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary-100">
+              <svg
+                className="h-10 w-10 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+
+            {/* Success Message */}
+            <h2 className="text-3xl font-bold text-gray-900">Check Your Email</h2>
+            <p className="mt-3 text-gray-600">
+              We've sent a verification link to your email address. Please click the link to
+              activate your account.
+            </p>
+
+            {/* Email Badge */}
+            <div className="mt-6 rounded-lg bg-gray-50 p-4">
+              <p className="text-sm text-gray-500">Didn't receive the email?</p>
+              <p className="mt-1 text-sm text-gray-700">
+                Check your spam folder or contact support if you need help.
+              </p>
+            </div>
+
+            {/* Action Button */}
+            <Link
+              to="/login"
+              className="mt-6 inline-block w-full rounded-lg bg-primary-600 px-6 py-3 text-center font-medium text-white transition-colors hover:bg-primary-700"
+            >
+              Back to Login
+            </Link>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Account Created!</h2>
-          <p className="mt-2 text-gray-600">Check your email to verify your account.</p>
         </motion.div>
       </div>
     )
@@ -90,7 +152,7 @@ export default function RegisterPage() {
           <div>
             <Link to="/" className="flex items-center gap-2">
               <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
-              <span className="text-2xl font-bold">Capitak PayPSP</span>
+              <span className="text-2xl font-bold">Capital Pay PSP</span>
             </Link>
             <h2 className="mt-8 text-3xl font-bold text-gray-900">Create your account</h2>
             <p className="mt-2 text-gray-600">
@@ -102,13 +164,6 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
-            <Input
-              label="Full Name"
-              placeholder="John Doe"
-              error={errors.name?.message}
-              {...register('name')}
-            />
-
             <Input
               label="Email"
               type="email"
@@ -155,18 +210,42 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Side - Benefits */}
-      <div className="hidden bg-gradient-to-br from-primary-600 to-secondary-600 lg:block lg:w-1/2">
-        <div className="flex h-full items-center justify-center px-12">
-          <div className="max-w-md text-white">
-            <h3 className="text-3xl font-bold">Start accepting payments today</h3>
-            <ul className="mt-8 space-y-4">
+      <div className="relative hidden w-0 flex-1 lg:block">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-secondary-600">
+          {/* Background Pattern/Watermark */}
+          <div className="absolute -right-20 -top-20 opacity-10">
+            <svg width="400" height="400" viewBox="0 0 100 100" fill="white">
+              <rect x="20" y="20" width="60" height="60" rx="15" />
+            </svg>
+          </div>
+          <div className="absolute bottom-0 left-0 opacity-10">
+            <svg width="300" height="300" viewBox="0 0 100 100" fill="white">
+              <rect x="20" y="20" width="60" height="60" rx="15" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="relative flex h-full items-center justify-center px-12">
+          <div className="relative max-w-lg rounded-2xl bg-white/5 p-12 backdrop-blur-lg">
+            {/* Logo Icon */}
+            <div className="mb-8 h-12 w-12 rounded-xl bg-white/20 p-2 backdrop-blur-sm">
+              <div className="h-full w-full rounded-lg bg-white" />
+            </div>
+
+            <h3 className="text-3xl font-bold leading-tight text-white">
+              Join the future of payments with Capital Pay PSP
+            </h3>
+
+            <div className="mt-12 space-y-8">
               {benefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-3">
-                  <FiCheckCircle className="mt-0.5 h-6 w-6 flex-shrink-0" />
-                  <span className="text-lg">{benefit}</span>
-                </li>
+                <div key={benefit} className="flex items-start gap-4">
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-400/20">
+                    <FiCheckCircle className="h-4 w-4 text-green-300" />
+                  </div>
+                  <span className="text-lg font-medium text-white/90">{benefit}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

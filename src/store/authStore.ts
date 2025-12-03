@@ -4,7 +4,9 @@ import { persist } from 'zustand/middleware'
 interface User {
   id: string
   email: string
-  name: string
+  is_active: boolean
+  email_verified: boolean
+  mfa_enabled: boolean
 }
 
 interface AuthState {

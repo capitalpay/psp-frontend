@@ -20,7 +20,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, {user?.name || 'User'}!
+                Welcome back, {user?.email || 'User'}!
               </h1>
               <p className="mt-1 text-gray-600">Here's what's happening with your account today.</p>
             </div>
@@ -35,7 +35,7 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-l-4 border-l-primary-500">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Transactions</p>
@@ -48,7 +48,7 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="border-l-4 border-l-secondary-500">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Revenue</p>
@@ -61,7 +61,7 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="border-l-4 border-l-blue-500">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">API Keys</p>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="border-l-4 border-l-yellow-500">
+          <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">KYC Status</p>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
 
         {/* KYC Alert */}
         {kycStatus === 'PENDING' && (
-          <div className="rounded-lg border-l-4 border-l-yellow-500 bg-yellow-50 p-4">
+          <div className="rounded-lg bg-yellow-50 p-4">
             <div className="flex items-start">
               <FiUpload className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
               <div className="ml-3">

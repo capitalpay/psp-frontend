@@ -50,7 +50,7 @@ export default function Sidebar({ className }: SidebarProps) {
           {/* Logo */}
           <div className="flex h-16 items-center gap-2 border-b px-6">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
-            <span className="text-lg font-bold">Capitak PayPSP</span>
+            <span className="text-xl font-bold text-gray-900">Capital Pay PSP</span>
           </div>
 
           {/* Navigation */}

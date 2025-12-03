@@ -12,7 +12,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
-              <span className="text-xl font-bold">Capitak PayPSP</span>
+              <span className="text-xl font-bold text-gray-900">Capital Pay PSP</span>
             </div>
             <nav className="hidden gap-6 md:flex">
               <a href="#features" className="text-gray-700 hover:text-primary-600">
@@ -192,7 +192,7 @@ export default function LandingPage() {
             Ready to start accepting payments?
           </h2>
           <p className="mt-4 text-lg text-primary-100">
-            Join thousands of merchants already using Capitak PayPSP
+            Join thousands of merchants already using Capital Pay PSP
           </p>
           <div className="mt-8">
             <Link to="/register">
@@ -211,7 +211,7 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600" />
-                <span className="text-lg font-bold">Capitak PayPSP</span>
+                <span className="text-lg font-bold">Capital Pay PSP</span>
               </div>
               <p className="mt-4 text-sm text-gray-600">
                 Enterprise payment infrastructure for African merchants.
@@ -279,7 +279,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 border-t border-gray-200 pt-8 text-center">
-            <p className="text-sm text-gray-600">© 2025 Capitak PayPSP. All rights reserved.</p>
+            <p className="text-sm text-gray-600">© 2025 Capital Pay PSP. All rights reserved.</p>
           </div>
         </div>
       </footer>
