@@ -1,82 +1,184 @@
-import Layout from '@/components/Layout'
+import DashboardLayout from '@/components/DashboardLayout'
 import Card from '@/components/Card'
+import KYCStatusBadge from '@/components/KYCStatusBadge'
 import { useAuthStore } from '@/store/authStore'
+import { FiKey, FiFileText, FiUpload, FiDollarSign } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user)
 
+  // Mock data - in real implementation, fetch from API
+  const kycStatus = 'PENDING'
+  const apiKeyCount = { test: 2, live: 0 }
+
   return (
-    <Layout>
+    <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-2 text-gray-600">Welcome back, {user?.name || 'User'}!</p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card
-            title="Total Transactions"
-            description="This month"
-            className="border-l-primary-500 border-l-4"
-          >
-            <p className="text-3xl font-bold text-gray-900">1,234</p>
-            <p className="mt-2 text-sm text-green-600">+12% from last month</p>
-          </Card>
-
-          <Card
-            title="Revenue"
-            description="This month"
-            className="border-l-secondary-500 border-l-4"
-          >
-            <p className="text-3xl font-bold text-gray-900">$45,678</p>
-            <p className="mt-2 text-sm text-green-600">+8% from last month</p>
-          </Card>
-
-          <Card
-            title="Active Merchants"
-            description="Total count"
-            className="border-l-4 border-l-blue-500"
-          >
-            <p className="text-3xl font-bold text-gray-900">89</p>
-            <p className="mt-2 text-sm text-green-600">+3 new this month</p>
-          </Card>
-        </div>
-
-        <Card title="Recent Transactions" description="Last 5 transactions">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Amount
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                <tr>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">#TX123</td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">$250.00</td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap">
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                      Completed
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">Dec 3, 2025</td>
-                </tr>
-              </tbody>
-            </table>
+        {/* Welcome Card */}
+        <Card>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Welcome back, {user?.name || 'User'}!
+              </h1>
+              <p className="mt-1 text-gray-600">Here's what's happening with your account today.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Account Status:</span>
+              <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                Active
+              </span>
+            </div>
           </div>
         </Card>
+
+        {/* Stats Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-l-4 border-l-primary-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Transactions</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">0</p>
+                <p className="mt-2 text-sm text-gray-500">This month</p>
+              </div>
+              <div className="rounded-full bg-primary-100 p-3">
+                <FiDollarSign className="h-6 w-6 text-primary-600" />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="border-l-4 border-l-secondary-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Revenue</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">$0</p>
+                <p className="mt-2 text-sm text-gray-500">This month</p>
+              </div>
+              <div className="rounded-full bg-secondary-100 p-3">
+                <FiDollarSign className="h-6 w-6 text-secondary-600" />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="border-l-4 border-l-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">API Keys</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">
+                  {apiKeyCount.test + apiKeyCount.live}
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  {apiKeyCount.test} test, {apiKeyCount.live} live
+                </p>
+              </div>
+              <div className="rounded-full bg-blue-100 p-3">
+                <FiKey className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="border-l-4 border-l-yellow-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">KYC Status</p>
+                <div className="mt-2">
+                  <KYCStatusBadge
+                    status={kycStatus as 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW'}
+                  />
+                </div>
+                <p className="mt-2 text-sm text-gray-500">Verification pending</p>
+              </div>
+              <div className="rounded-full bg-yellow-100 p-3">
+                <FiFileText className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* KYC Alert */}
+        {kycStatus === 'PENDING' && (
+          <div className="rounded-lg border-l-4 border-l-yellow-500 bg-yellow-50 p-4">
+            <div className="flex items-start">
+              <FiUpload className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">Complete KYC Verification</h3>
+                <p className="mt-1 text-sm text-yellow-700">
+                  To generate LIVE API keys and start accepting real payments, please complete your
+                  KYC verification.
+                </p>
+                <div className="mt-3">
+                  <Link
+                    to="/profile"
+                    className="inline-flex items-center gap-2 rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700"
+                  >
+                    <FiUpload size={16} />
+                    Start Verification
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+          <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Link
+              to="/api-keys"
+              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+            >
+              <div className="rounded-lg bg-primary-100 p-3">
+                <FiKey className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Generate API Key</p>
+                <p className="text-sm text-gray-600">Create test or live keys</p>
+              </div>
+            </Link>
+
+            <Link
+              to="/profile"
+              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+            >
+              <div className="rounded-lg bg-secondary-100 p-3">
+                <FiFileText className="h-6 w-6 text-secondary-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Update Profile</p>
+                <p className="text-sm text-gray-600">Business information</p>
+              </div>
+            </Link>
+
+            <a
+              href="#"
+              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+            >
+              <div className="rounded-lg bg-blue-100 p-3">
+                <FiFileText className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">API Documentation</p>
+                <p className="text-sm text-gray-600">View integration guides</p>
+              </div>
+            </a>
+
+            <Link
+              to="/settings"
+              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
+            >
+              <div className="rounded-lg bg-green-100 p-3">
+                <FiKey className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Security Settings</p>
+                <p className="text-sm text-gray-600">Enable 2FA</p>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
-    </Layout>
+    </DashboardLayout>
   )
 }
