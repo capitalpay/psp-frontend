@@ -28,17 +28,15 @@ The app will be available at `http://localhost:5173`
 
 #### Option 2: Full Stack with Docker (Production-like)
 
-From the **root** `psp` directory:
+We recommend using the `psp-infra` repository to run the full stack:
 
 ```bash
-# Start all services (Auth Service, Gateway, Frontend)
-docker compose up -d
+# Clone the infrastructure repo (if you haven't already)
+git clone <your-repo-url>/psp-infra.git ../psp-infra
 
-# Rebuild frontend after code changes
-docker compose up -d --build frontend
-
-# View logs
-docker compose logs -f frontend
+# Start the platform
+cd ../psp-infra/scripts
+./setup-local.sh
 ```
 
 The production build will be available at `http://localhost:3000`
