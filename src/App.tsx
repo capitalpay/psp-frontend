@@ -5,6 +5,8 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import VerifyEmailPage from '@/pages/VerifyEmailPage'
 import DashboardPage from '@/pages/DashboardPage'
+import ApiKeysPage from '@/pages/ApiKeysPage'
+import SecuritySettingsPage from '@/pages/SecuritySettingsPage'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 function App() {
@@ -42,19 +44,15 @@ function App() {
           path="/api-keys"
           element={
             <ProtectedRoute>
-              <div className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-600">API Keys page - Coming soon</p>
-              </div>
+              <ApiKeysPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/settings"
+          path="/settings/security"
           element={
             <ProtectedRoute>
-              <div className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-600">Settings page - Coming soon</p>
-              </div>
+              <SecuritySettingsPage />
             </ProtectedRoute>
           }
         />

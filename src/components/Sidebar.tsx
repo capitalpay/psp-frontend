@@ -15,7 +15,7 @@ export default function Sidebar({ className }: SidebarProps) {
     { name: 'Dashboard', href: '/dashboard', icon: FiHome },
     { name: 'Profile', href: '/profile', icon: FiUser },
     { name: 'API Keys', href: '/api-keys', icon: FiKey },
-    { name: 'Settings', href: '/settings', icon: FiSettings },
+    { name: 'Settings', href: '/settings/security', icon: FiSettings },
   ]
 
   const isActive = (href: string) => location.pathname === href

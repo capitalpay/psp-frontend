@@ -66,7 +66,7 @@ export default function UserMenu() {
               Profile
             </Link>
             <Link
-              to="/settings"
+              to="/settings/security"
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >

@@ -45,7 +45,7 @@ export default function LoginPage() {
       const responseData = response.data
 
       login(responseData.user, responseData.access, responseData.refresh)
-      toast.success('Login successful!')
+      toast.success('Login successful!', { duration: 3000 })
       navigate('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -55,14 +55,21 @@ export default function LoginPage() {
         const errorData = error.response?.data
 
         // Check if MFA code is required
+        const mfaError = errorData?.mfa_code
         if (
-          errorData?.mfa_code === 'MFA code required' ||
+          (Array.isArray(mfaError) && mfaError.includes('MFA code required')) ||
+          mfaError === 'MFA code required' ||
           errorData?.message === 'MFA code required'
         ) {
           setRequires2FA(true)
           toast('Enter your 2FA code')
         } else {
-          const errorMessage = errorData?.non_field_errors || errorData?.message || 'Login failed'
+          const getErrorMsg = (err: string | string[] | undefined) =>
+            Array.isArray(err) ? err[0] : err
+          const errorMessage =
+            getErrorMsg(errorData?.non_field_errors) ||
+            getErrorMsg(errorData?.message) ||
+            'Login failed'
           setError(errorMessage)
           toast.error(errorMessage)
         }
@@ -89,7 +96,7 @@ export default function LoginPage() {
 
       const responseData = response.data
       login(responseData.user, responseData.access, responseData.refresh)
-      toast.success('Login successful!')
+      toast.success('Login successful!', { duration: 3000 })
       navigate('/dashboard')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -97,10 +104,12 @@ export default function LoginPage() {
           response?: { data?: { message?: string; mfa_code?: string; non_field_errors?: string } }
         }
         const errorData = error.response?.data
+        const getErrorMsg = (err: string | string[] | undefined) =>
+          Array.isArray(err) ? err[0] : err
         const errorMessage =
-          errorData?.mfa_code ||
-          errorData?.non_field_errors ||
-          errorData?.message ||
+          getErrorMsg(errorData?.mfa_code) ||
+          getErrorMsg(errorData?.non_field_errors) ||
+          getErrorMsg(errorData?.message) ||
           '2FA verification failed'
         setError(errorMessage)
         toast.error(errorMessage)

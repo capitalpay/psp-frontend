@@ -19,9 +19,13 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api/v1': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_TARGET || 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },

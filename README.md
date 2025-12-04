@@ -69,6 +69,7 @@ npm run lint             # Run ESLint
 
 # Docker (from root psp directory)
 docker compose up -d                    # Start all services
+docker compose up frontend-dev          # Start frontend with hot reload (localhost:5173)
 docker compose up -d --build frontend   # Rebuild frontend
 docker compose logs -f frontend         # View frontend logs
 docker compose down                     # Stop all services
