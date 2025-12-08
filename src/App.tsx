@@ -7,6 +7,7 @@ import VerifyEmailPage from '@/pages/VerifyEmailPage'
 import DashboardPage from '@/pages/DashboardPage'
 import ApiKeysPage from '@/pages/ApiKeysPage'
 import SecuritySettingsPage from '@/pages/SecuritySettingsPage'
+import ProfilePage from '@/pages/ProfilePage'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 function App() {
@@ -34,9 +35,7 @@ function App() {
           path="/profile"
           element={
             <ProtectedRoute>
-              <div className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-600">Profile page - Coming soon</p>
-              </div>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

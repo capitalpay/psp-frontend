@@ -9,7 +9,7 @@ interface ModalProps {
   title: string
   children: ReactNode
   footer?: ReactNode
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'large'
 }
 
 export default function Modal({
@@ -37,6 +37,7 @@ export default function Modal({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    large: 'max-w-2xl',
   }
 
   return createPortal(
@@ -58,7 +59,7 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className={`w - full relative ${sizeClasses[size]} - 2xl bg - white p - 6 - xl - all transform rounded shadow transition`}
+            className={`relative w-full ${sizeClasses[size]} transform rounded-xl bg-white p-6 shadow-2xl transition-all`}
           >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-medium leading-6 text-gray-900">{title}</h3>

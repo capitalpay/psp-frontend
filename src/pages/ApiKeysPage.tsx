@@ -12,22 +12,18 @@ import { useAuthStore } from '@/store/authStore'
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKey[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'live' | 'test'>('all')
-
-  // Create Modal State
+  const [filter, setFilter] = useState<'all' | 'LIVE' | 'TEST'>('all')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [createName, setCreateName] = useState('')
-  const [createEnv, setCreateEnv] = useState<'live' | 'test'>('test')
+  const [createLabel, setCreateLabel] = useState('')
+  const [createEnv, setCreateEnv] = useState<'TEST' | 'LIVE'>('TEST')
   const [isCreating, setIsCreating] = useState(false)
   const [newKey, setNewKey] = useState<ApiKey | null>(null)
   const [isKeySaved, setIsKeySaved] = useState(false)
-
-  // Revoke Modal State
   const [keyToRevoke, setKeyToRevoke] = useState<ApiKey | null>(null)
   const [isRevoking, setIsRevoking] = useState(false)
 
   const user = useAuthStore((state) => state.user)
-  const isKycVerified = user?.email_verified // Assuming email verified is enough for now, or check specific KYC field if exists
+  const isKycVerified = user?.email_verified
 
   useEffect(() => {
     fetchKeys()
@@ -37,9 +33,11 @@ export default function ApiKeysPage() {
     try {
       setIsLoading(true)
       const data = await apiKeysService.getAll()
-      setKeys(data)
-    } catch {
+      setKeys(data || [])
+    } catch (error) {
+      console.error('Error fetching API keys:', error)
       toast.error('Failed to load API keys')
+      setKeys([])
     } finally {
       setIsLoading(false)
     }
@@ -49,13 +47,14 @@ export default function ApiKeysPage() {
     try {
       setIsCreating(true)
       const key = await apiKeysService.create({
-        name: createName,
+        label: createLabel,
         environment: createEnv,
       })
       setNewKey(key)
       toast.success('API Key created successfully')
-      fetchKeys()
-    } catch {
+      await fetchKeys()
+    } catch (error) {
+      console.error('Error creating API key:', error)
       toast.error('Failed to create API key')
     } finally {
       setIsCreating(false)
@@ -65,8 +64,8 @@ export default function ApiKeysPage() {
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false)
     setNewKey(null)
-    setCreateName('')
-    setCreateEnv('test')
+    setCreateLabel('')
+    setCreateEnv('TEST')
     setIsKeySaved(false)
   }
 
@@ -77,9 +76,10 @@ export default function ApiKeysPage() {
       setIsRevoking(true)
       await apiKeysService.revoke(keyToRevoke.id)
       toast.success('API Key revoked successfully')
-      fetchKeys()
+      await fetchKeys()
       setKeyToRevoke(null)
-    } catch {
+    } catch (error) {
+      console.error('Error revoking API key:', error)
       toast.error('Failed to revoke API key')
     } finally {
       setIsRevoking(false)
@@ -98,17 +98,21 @@ export default function ApiKeysPage() {
 
   const columns: Column<ApiKey>[] = [
     {
-      header: 'Name',
-      accessorKey: 'name',
+      header: 'Label',
+      accessorKey: 'label',
       cell: (key) => (
         <div className="flex items-center gap-2">
           <div
-            className={`rounded-lg p-2 ${key.environment === 'live' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}
+            className={
+              key.environment === 'LIVE'
+                ? 'rounded-lg bg-red-100 p-2 text-red-600'
+                : 'rounded-lg bg-blue-100 p-2 text-blue-600'
+            }
           >
             <FiKey />
           </div>
           <div>
-            <p className="font-medium text-gray-900">{key.name}</p>
+            <p className="font-medium text-gray-900">{key.label || 'Untitled'}</p>
             <p className="text-xs text-gray-500">{key.prefix}••••••••••••••••</p>
           </div>
         </div>
@@ -119,11 +123,13 @@ export default function ApiKeysPage() {
       accessorKey: 'environment',
       cell: (key) => (
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            key.environment === 'live' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
-          }`}
+          className={
+            key.environment === 'LIVE'
+              ? 'inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800'
+              : 'inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800'
+          }
         >
-          {key.environment.toUpperCase()}
+          {key.environment}
         </span>
       ),
     },
@@ -131,11 +137,6 @@ export default function ApiKeysPage() {
       header: 'Created',
       accessorKey: 'created_at',
       cell: (key) => new Date(key.created_at).toLocaleDateString(),
-    },
-    {
-      header: 'Last Used',
-      accessorKey: 'last_used_at',
-      cell: (key) => (key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'),
     },
     {
       header: 'Actions',
@@ -166,20 +167,19 @@ export default function ApiKeysPage() {
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
-          {(['all', 'test', 'live'] as const).map((type) => (
+          {(['all', 'TEST', 'LIVE'] as const).map((type) => (
             <button
               key={type}
               onClick={() => setFilter(type)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium capitalize ${
+              className={
                 filter === type
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-              } `}
+                  ? 'whitespace-nowrap border-b-2 border-primary-500 px-1 pb-4 text-sm font-medium text-primary-600'
+                  : 'whitespace-nowrap border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              }
             >
-              {type} Keys
+              {type === 'all' ? 'All' : type} Keys
             </button>
           ))}
         </nav>
@@ -207,7 +207,7 @@ export default function ApiKeysPage() {
               <Button variant="outline" onClick={handleCloseCreateModal}>
                 Cancel
               </Button>
-              <Button onClick={handleCreate} isLoading={isCreating} disabled={!createName}>
+              <Button onClick={handleCreate} isLoading={isCreating}>
                 Create Key
               </Button>
             </>
@@ -264,22 +264,26 @@ export default function ApiKeysPage() {
                   <input
                     type="radio"
                     name="env"
-                    value="test"
-                    checked={createEnv === 'test'}
-                    onChange={() => setCreateEnv('test')}
+                    value="TEST"
+                    checked={createEnv === 'TEST'}
+                    onChange={() => setCreateEnv('TEST')}
                     className="text-primary-600 focus:ring-primary-500"
                   />
                   <span className="text-sm text-gray-700">Test Mode</span>
                 </label>
                 <label
-                  className={`flex items-center gap-2 ${!isKycVerified ? 'cursor-not-allowed opacity-50' : ''}`}
+                  className={
+                    !isKycVerified
+                      ? 'flex cursor-not-allowed items-center gap-2 opacity-50'
+                      : 'flex items-center gap-2'
+                  }
                 >
                   <input
                     type="radio"
                     name="env"
-                    value="live"
-                    checked={createEnv === 'live'}
-                    onChange={() => isKycVerified && setCreateEnv('live')}
+                    value="LIVE"
+                    checked={createEnv === 'LIVE'}
+                    onChange={() => isKycVerified && setCreateEnv('LIVE')}
                     disabled={!isKycVerified}
                     className="text-primary-600 focus:ring-primary-500"
                   />
@@ -292,10 +296,10 @@ export default function ApiKeysPage() {
             </div>
 
             <Input
-              label="Key Label"
+              label="Key Label (Optional)"
               placeholder="e.g. Website Payment Gateway"
-              value={createName}
-              onChange={(e) => setCreateName(e.target.value)}
+              value={createLabel}
+              onChange={(e) => setCreateLabel(e.target.value)}
             />
           </div>
         )}
@@ -323,9 +327,9 @@ export default function ApiKeysPage() {
           </div>
           <div>
             <p className="text-sm text-gray-500">
-              Are you sure you want to revoke the key <strong>{keyToRevoke?.name}</strong>? This
-              action cannot be undone and any applications using this key will stop working
-              immediately.
+              Are you sure you want to revoke the key{' '}
+              <strong>{keyToRevoke?.label || 'Untitled'}</strong>? This action cannot be undone and
+              any applications using this key will stop working immediately.
             </p>
           </div>
         </div>
