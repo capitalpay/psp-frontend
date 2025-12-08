@@ -41,7 +41,7 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await apiClient.post('/auth/login', data)
+      const response = await apiClient.post('/auth/login/', data)
       const responseData = response.data
 
       login(responseData.user, responseData.access, responseData.refresh)
@@ -89,7 +89,7 @@ export default function LoginPage() {
     try {
       // Resubmit login with MFA code
       const formData = watch()
-      const response = await apiClient.post('/auth/login', {
+      const response = await apiClient.post('/auth/login/', {
         ...formData,
         mfa_code: code,
       })

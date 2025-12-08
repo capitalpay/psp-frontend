@@ -15,28 +15,28 @@ export interface MFASetupResponse {
 export const authService = {
   // MFA Endpoints
   getMFAStatus: async () => {
-    const response = await apiClient.get<MFAStatus>('/auth/mfa/status')
+    const response = await apiClient.get<MFAStatus>('/auth/mfa/status/')
     return response.data
   },
 
   setupMFA: async () => {
-    const response = await apiClient.post<MFASetupResponse>('/auth/mfa/setup')
+    const response = await apiClient.post<MFASetupResponse>('/auth/mfa/setup/')
     return response.data
   },
 
   enableMFA: async (code: string) => {
-    const response = await apiClient.post('/auth/mfa/enable', { code })
+    const response = await apiClient.post('/auth/mfa/enable/', { code })
     return response.data
   },
 
   disableMFA: async (code: string, password: string) => {
-    const response = await apiClient.post('/auth/mfa/disable', { code, password })
+    const response = await apiClient.post('/auth/mfa/disable/', { code, password })
     return response.data
   },
 
   regenerateBackupCodes: async (code: string, password: string) => {
     const response = await apiClient.post<{ backup_codes: string[] }>(
-      '/auth/mfa/regenerate-backup-codes',
+      '/auth/mfa/regenerate-backup-codes/',
       { code, password }
     )
     return response.data

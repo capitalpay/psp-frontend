@@ -20,7 +20,7 @@ export default function VerifyEmailPage() {
   const verifyEmail = useCallback(
     async (token: string) => {
       try {
-        await apiClient.post('/auth/verify-email', { token })
+        await apiClient.post('/auth/verify-email/', { token })
         setStatus('success')
         setMessage('Your email has been verified successfully!')
         toast.success('Email verified! Redirecting to login...')
@@ -63,7 +63,7 @@ export default function VerifyEmailPage() {
   const handleResend = async () => {
     setIsResending(true)
     try {
-      await apiClient.post('/auth/resend-verification')
+      await apiClient.post('/auth/resend-verification/')
       toast.success('Verification email sent! Check your inbox.')
       setCountdown(60)
       setCanResend(false)

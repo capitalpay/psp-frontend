@@ -43,7 +43,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      await apiClient.post('/auth/register', {
+      await apiClient.post('/auth/register/', {
         email: data.email,
         password: data.password,
         password_confirm: data.confirmPassword,

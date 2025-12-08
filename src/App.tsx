@@ -9,6 +9,11 @@ import ApiKeysPage from '@/pages/ApiKeysPage'
 import SecuritySettingsPage from '@/pages/SecuritySettingsPage'
 import ProfilePage from '@/pages/ProfilePage'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import AdminLayout from '@/components/layout/AdminLayout'
+import RequireStaff from '@/components/auth/RequireStaff'
+import UsersPage from '@/pages/admin/UsersPage'
+import MerchantsPage from '@/pages/admin/MerchantsPage'
+import KYCQueuePage from '@/pages/admin/KYCQueuePage'
 
 function App() {
   return (
@@ -55,6 +60,21 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <RequireStaff>
+              <AdminLayout />
+            </RequireStaff>
+          }
+        >
+          <Route path="users" element={<UsersPage />} />
+          <Route path="merchants" element={<MerchantsPage />} />
+          <Route path="kyc" element={<KYCQueuePage />} />
+          <Route index element={<Navigate to="users" replace />} />
+        </Route>
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

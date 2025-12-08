@@ -7,6 +7,7 @@ interface User {
   is_active: boolean
   email_verified: boolean
   mfa_enabled: boolean
+  is_staff?: boolean
 }
 
 interface AuthState {

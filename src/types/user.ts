@@ -3,4 +3,5 @@ export interface User {
   email: string
   name: string
   emailVerified: boolean
+  is_staff?: boolean
 }
