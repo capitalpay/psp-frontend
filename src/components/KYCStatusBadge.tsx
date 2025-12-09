@@ -29,6 +29,12 @@ export default function KYCStatusBadge({ status, className }: KYCStatusBadgeProp
           label: 'Under Review',
           className: 'bg-blue-100 text-blue-800 border-blue-200',
         }
+      case 'NOT_STARTED':
+      case 'CANCELLED':
+        return {
+          label: 'Not Started',
+          className: 'bg-gray-100 text-gray-800 border-gray-200',
+        }
     }
   }
 

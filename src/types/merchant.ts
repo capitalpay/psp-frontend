@@ -1,4 +1,4 @@
-export type KYCStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW'
+export type KYCStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW' | 'NOT_STARTED' | 'CANCELLED'
 
 export interface MerchantProfile {
   id: string

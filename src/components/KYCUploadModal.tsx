@@ -28,10 +28,9 @@ export default function KYCUploadModal({ isOpen, onClose, onSuccess }: KYCUpload
 
   const onSubmit = async (data: KYCFormData) => {
     try {
-      const formData = new FormData()
-      formData.append('selfie', data.selfie[0])
-
-      await complianceService.initiateKYC(formData)
+      await complianceService.initiateKYC({
+        selfie: data.selfie[0],
+      })
       toast.success('Verification initiated successfully')
       reset()
       setFileName('')

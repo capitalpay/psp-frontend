@@ -23,8 +23,8 @@ export interface KYCDocuments {
   selfie?: File
   id_front?: File
   id_back?: File
-  id_type: IdType
-  id_country: string
+  id_type?: IdType
+  id_country?: string
   merchant_type?: MerchantType
   business_registration?: File
   tax_certificate?: File
@@ -45,8 +45,12 @@ export const complianceService = {
     }
 
     // Add required data
-    formData.append('id_type', documents.id_type)
-    formData.append('id_country', documents.id_country)
+    if (documents.id_type) {
+      formData.append('id_type', documents.id_type)
+    }
+    if (documents.id_country) {
+      formData.append('id_country', documents.id_country)
+    }
 
     // Add optional files
     if (documents.id_back) {
